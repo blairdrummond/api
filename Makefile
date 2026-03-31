@@ -1,6 +1,9 @@
 all: patch-swagger-doc format
 
-buf-gen: init-git-hooks
+build-plugin:
+	cd tools/protoc-gen-authzen-helpers && go build -o protoc-gen-authzen-helpers .
+
+buf-gen: init-git-hooks build-plugin
 	./buf.gen.yaml
 
 patch-swagger-doc: buf-gen

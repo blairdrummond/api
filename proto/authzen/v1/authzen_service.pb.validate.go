@@ -17,6 +17,8 @@ import (
 	"unicode/utf8"
 
 	"google.golang.org/protobuf/types/known/anypb"
+
+	openfgav1 "github.com/openfga/api/proto/openfga/v1"
 )
 
 // ensure the imports are used
@@ -33,7 +35,191 @@ var (
 	_ = (*mail.Address)(nil)
 	_ = anypb.Any{}
 	_ = sort.Sort
+
+	_ = openfgav1.ConsistencyPreference(0)
 )
+
+// Validate checks the field values on ContextData with the rules defined in
+// the proto definition for this message. If any rules are violated, the first
+// error encountered is returned, or nil if there are no violations.
+func (m *ContextData) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on ContextData with the rules defined in
+// the proto definition for this message. If any rules are violated, the
+// result is a list of violation errors wrapped in ContextDataMultiError, or
+// nil if none found.
+func (m *ContextData) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *ContextData) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	{
+		sorted_keys := make([]string, len(m.GetAdditional()))
+		i := 0
+		for key := range m.GetAdditional() {
+			sorted_keys[i] = key
+			i++
+		}
+		sort.Slice(sorted_keys, func(i, j int) bool { return sorted_keys[i] < sorted_keys[j] })
+		for _, key := range sorted_keys {
+			val := m.GetAdditional()[key]
+			_ = val
+
+			// no validation rules for Additional[key]
+
+			if all {
+				switch v := interface{}(val).(type) {
+				case interface{ ValidateAll() error }:
+					if err := v.ValidateAll(); err != nil {
+						errors = append(errors, ContextDataValidationError{
+							field:  fmt.Sprintf("Additional[%v]", key),
+							reason: "embedded message failed validation",
+							cause:  err,
+						})
+					}
+				case interface{ Validate() error }:
+					if err := v.Validate(); err != nil {
+						errors = append(errors, ContextDataValidationError{
+							field:  fmt.Sprintf("Additional[%v]", key),
+							reason: "embedded message failed validation",
+							cause:  err,
+						})
+					}
+				}
+			} else if v, ok := interface{}(val).(interface{ Validate() error }); ok {
+				if err := v.Validate(); err != nil {
+					return ContextDataValidationError{
+						field:  fmt.Sprintf("Additional[%v]", key),
+						reason: "embedded message failed validation",
+						cause:  err,
+					}
+				}
+			}
+
+		}
+	}
+
+	if m.Consistency != nil {
+		// no validation rules for Consistency
+	}
+
+	if m.Tuples != nil {
+
+		if all {
+			switch v := interface{}(m.GetTuples()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, ContextDataValidationError{
+						field:  "Tuples",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, ContextDataValidationError{
+						field:  "Tuples",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetTuples()).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return ContextDataValidationError{
+					field:  "Tuples",
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	}
+
+	if len(errors) > 0 {
+		return ContextDataMultiError(errors)
+	}
+
+	return nil
+}
+
+// ContextDataMultiError is an error wrapping multiple validation errors
+// returned by ContextData.ValidateAll() if the designated constraints aren't met.
+type ContextDataMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m ContextDataMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m ContextDataMultiError) AllErrors() []error { return m }
+
+// ContextDataValidationError is the validation error returned by
+// ContextData.Validate if the designated constraints aren't met.
+type ContextDataValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e ContextDataValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e ContextDataValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e ContextDataValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e ContextDataValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e ContextDataValidationError) ErrorName() string { return "ContextDataValidationError" }
+
+// Error satisfies the builtin error interface
+func (e ContextDataValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sContextData.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = ContextDataValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = ContextDataValidationError{}
 
 // Validate checks the field values on EvaluationRequest with the rules defined
 // in the proto definition for this message. If any rules are violated, the

@@ -8,3 +8,5 @@
 
 .DS_Store
 .env
+
+tools/protoc-gen-authzen-helpers/protoc-gen-authzen-helpers

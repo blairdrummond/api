@@ -32,3 +32,8 @@ plugins:
     opt:
       - openapi_naming_strategy=simple
       - allow_merge=true
+  - plugin: authzen-helpers
+    out: proto/
+    opt:
+      - paths=source_relative
+    path: ./tools/protoc-gen-authzen-helpers/protoc-gen-authzen-helpers

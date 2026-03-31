@@ -5,6 +5,8 @@ package authzen.v1;
 import "google/api/annotations.proto";
 import "google/api/field_behavior.proto";
 import "google/protobuf/struct.proto";
+import "openfga/v1/openfga.proto";
+import "openfga/v1/openfga_service_consistency.proto";
 import "protoc-gen-openapiv2/options/annotations.proto";
 import "validate/validate.proto";
 
@@ -360,6 +362,25 @@ service AuthZenService {
         "```\n"
     };
   }
+}
+
+// ContextData is a helper message for parsing context Struct fields.
+// Use this in your application code to extract typed OpenFGA fields from the context.
+//
+// Example usage:
+//   contextData, err := parseContext(req.Context)
+//   if contextData.Consistency != nil {
+//       // use contextData.Consistency
+//   }
+message ContextData {
+  // OpenFGA consistency preference
+  optional openfga.v1.ConsistencyPreference consistency = 1;
+
+  // Contextual tuples for the request
+  optional openfga.v1.ContextualTupleKeys tuples = 2;
+
+  // Additional arbitrary context fields
+  map<string, google.protobuf.Value> additional = 3;
 }
 
 message EvaluationRequest {
